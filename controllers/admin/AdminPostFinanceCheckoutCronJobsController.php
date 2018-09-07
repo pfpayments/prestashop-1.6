@@ -32,7 +32,6 @@ class AdminPostFinanceCheckoutCronJobsController extends ModuleAdminController
     private function handleList()
     {
         $this->display = 'list';
-        $this->context->smarty->assign('title', 'PostFinance Checkout '.$this->module->l('CronJobs'));
         $this->context->smarty->assign('jobs', PostFinanceCheckout_Cron::getAllCronJobs());
     }
     

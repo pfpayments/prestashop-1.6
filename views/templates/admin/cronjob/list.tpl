@@ -9,7 +9,7 @@
 <div class="panel col-lg-12">	
 	<div class="panel-heading">
 		<i class="icon-list-ul"></i>
-		{$title|escape:'html':'UTF-8'}
+		PostFinance Checkout {l s='CronJobs' mod='postfinancecheckout'}
 	</div>
 		<div class="table-responsive-row clearfix">
 			<table class="table">

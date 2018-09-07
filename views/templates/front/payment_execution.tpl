@@ -38,6 +38,7 @@
         <div id="postfinancecheckout-method-configuration" class="postfinancecheckout-method-configuration" style="display: none;"
 	data-method-id="{$methodId}" data-configuration-id="{$configurationId}"></div>
 		<div id="postfinancecheckout-method-container">
+			<input type="hidden" id="postfinancecheckout-iframe-possible" name="postfinancecheckout-iframe-possible" value="false" />
 			<div class="postfinancecheckout-loader"></div>		
 		</div>
 		

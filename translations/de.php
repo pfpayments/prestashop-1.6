@@ -198,6 +198,7 @@ $_MODULE['<{postfinancecheckout}prestashop>transactionvoid_e49316b56d9fec6398032
 $_MODULE['<{postfinancecheckout}prestashop>admin_help_buttons_a501af4b300ed900587dc6424efe05de'] = 'Dieses Modul benötigt ein %s Konto.';
 $_MODULE['<{postfinancecheckout}prestashop>admin_help_buttons_d67850bd126f070221dcfd5fa6317043'] = 'Anmelden';
 $_MODULE['<{postfinancecheckout}prestashop>admin_help_buttons_5b6cf869265c13af8566f192b4ab3d2a'] = 'Dokumentation';
+$_MODULE['<{postfinancecheckout}prestashop>list_60bb0e3fbb418c3b115759ec57e7c039'] = 'CronJobs';
 $_MODULE['<{postfinancecheckout}prestashop>list_b718adec73e04ce3ec720dd11a06a308'] = 'ID';
 $_MODULE['<{postfinancecheckout}prestashop>list_46a2a41cc6e552044816a2d04634545d'] = 'Status';
 $_MODULE['<{postfinancecheckout}prestashop>list_2b7dabba0077abe3732e0418b048a56b'] = 'Geplant';

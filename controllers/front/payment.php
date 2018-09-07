@@ -27,7 +27,7 @@ class PostFinanceCheckoutPaymentModuleFrontController extends PostFinanceCheckou
         parent::initContent();
         $methodId = Tools::getValue('methodId', null);
         if ($methodId == null) {
-            $this->context->cookie->pfc_error = $this->module->l('There was a technical issue, please try again.');
+            $this->context->cookie->pfc_error = $this->module->l('There was a technical issue, please try again.', 'payment');
             Tools::redirect('index.php?controller=order&step=3');
         }        
         $cart = $this->context->cart;
@@ -42,7 +42,7 @@ class PostFinanceCheckoutPaymentModuleFrontController extends PostFinanceCheckou
         $methodConfiguration = new PostFinanceCheckout_Model_MethodConfiguration($methodId);
         
         if (! $methodConfiguration->isActive() || $methodConfiguration->getSpaceId() != $spaceId) {
-            $this->context->cookie->pfc_error = $this->module->l('This payment method is no longer available, please try another one.');
+            $this->context->cookie->pfc_error = $this->module->l('This payment method is no longer available, please try another one.', 'payment');
             Tools::redirect($this->context->link->getPageLink('order', true, NULL, "step=3"));
         }
 
@@ -57,7 +57,7 @@ class PostFinanceCheckoutPaymentModuleFrontController extends PostFinanceCheckou
         try {
             $jsUrl = PostFinanceCheckout_Service_Transaction::instance()->getJavascriptUrl($cart);
         } catch (Exception $e) {
-            $this->context->cookie->pfc_error = $this->module->l('There was a technical issue, please try again.');
+            $this->context->cookie->pfc_error = $this->module->l('There was a technical issue, please try again.', 'payment');
             Tools::redirect('index.php?controller=order&step=3');
         }
         
