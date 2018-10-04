@@ -1,14 +1,11 @@
 <?php
-if (! defined('_PS_VERSION_')) {
-    exit();
-}
-
 /**
  * PostFinance Checkout Prestashop
  *
  * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
  *
  * @author customweb GmbH (http://www.customweb.com/)
+ * @copyright 2017 - 2018 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
 
@@ -34,6 +31,4 @@ class AdminPostFinanceCheckoutCronJobsController extends ModuleAdminController
         $this->display = 'list';
         $this->context->smarty->assign('jobs', PostFinanceCheckout_Cron::getAllCronJobs());
     }
-    
 }
-    
