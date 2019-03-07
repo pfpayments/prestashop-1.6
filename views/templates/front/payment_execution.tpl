@@ -57,7 +57,7 @@
 			{/if}
 		{/if}
         <p class="cart_navigation clearfix" id="cart_navigation">
-            <a class="button-exclusive btn btn-default" href="{$link->getPageLink('order', true, NULL, "step=3")|escape:'html':'UTF-8'}" tabindex="-1">
+            <a class="button-exclusive btn btn-default" href="{$link->getPageLink('order', true, NULL, "step=3")|escape:'html':'UTF-8'}" tabindex="-1" id="postfinancecheckout-back">
                 <i class="icon-chevron-left"></i>{l s='Other payment methods' mod='postfinancecheckout'}
             </a>
             <button class="button btn btn-default button-medium" id="postfinancecheckout-submit" disabled>

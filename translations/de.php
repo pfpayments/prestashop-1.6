@@ -285,7 +285,7 @@ $_MODULE['<{postfinancecheckout}prestashop>payment_1f87346a16cf80c372065de3c54c8
 $_MODULE['<{postfinancecheckout}prestashop>payment_eu_text_e06b71ff63c34e7d9d2694c850a969c4'] = 'Zusätzliche Gebühr:';
 $_MODULE['<{postfinancecheckout}prestashop>payment_eu_text_21034ae6d01a83e702839a72ba8a77b0'] = '(exkl. Steuer)';
 $_MODULE['<{postfinancecheckout}prestashop>payment_eu_text_1f87346a16cf80c372065de3c54c86d9'] = '(inkl. Steuer)';
-$_MODULE['<{postfinancecheckout}prestashop>payment_return_88526efe38fd18179a127024aba8c1d7'] = 'Ihre Bestellung in% s ist abgeschlossen.';
+$_MODULE['<{postfinancecheckout}prestashop>payment_return_88526efe38fd18179a127024aba8c1d7'] = 'Ihre Bestellung in %s ist abgeschlossen.';
 $_MODULE['<{postfinancecheckout}prestashop>payment_return_b2f40690858b404ed10e62bdf422c704'] = 'Totalbetrag';
 $_MODULE['<{postfinancecheckout}prestashop>payment_return_1e860e56970a81a1ba3e1fcb7fccc846'] = 'Bestellnummer';
 $_MODULE['<{postfinancecheckout}prestashop>payment_return_19c419a8a4f1cd621853376a930a2e24'] = 'Ein Bestätigungsemail mit diesen Informationen wurde versendet.';

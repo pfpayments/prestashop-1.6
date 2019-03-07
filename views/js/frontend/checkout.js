@@ -49,6 +49,10 @@ jQuery(function($) {
 	    this.iframe_handler.setInitializeCallback(function(){
 			$('#postfinancecheckout-iframe-possible').remove();
 			$('.postfinancecheckout-loader').remove();
+			$('html, body').animate(
+					{
+						scrollTop : ($('#postfinancecheckout-method-container').offset().top - screen.height/8)
+					}, 1000);
 			self.enable_pay_button();
 	    });
 	    this.iframe_handler.create("postfinancecheckout-method-container");

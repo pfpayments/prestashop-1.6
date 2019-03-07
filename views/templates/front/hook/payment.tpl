@@ -9,29 +9,28 @@
  *}
 <div class="row">
 	<div class="col-xs-12">
-			<p class="payment_module postfinancecheckout-method">
-				<a class="postfinancecheckout {if empty($image)}no_logo{/if}" href="{$link|escape:'html'}" title="{$name}" 
+		<div class="payment_module postfinancecheckout-method">
+			<div class="postfinancecheckout {if empty($image)}no_logo{/if}" 
 					{if !empty($image)} 
-						style="background: url({$image|escape:'html'}) no-repeat #fbfbfb; background-size: 64px; background-position:15px;"
+						style="background-image: url({$image|escape:'html'}); background-repeat: no-repeat; background-size: 64px; background-position:15px;"		
 					{/if}
-				>
-					{$name}
-		{if !empty($description)}
-			<span class="payment-method-description">{$description}</span>
-		{/if}
-		{if !empty($feeValues)}
-			<span class="postfinancecheckout-payment-fee"><span class="postfinancecheckout-payment-fee-text">{l s='Additional Fee:' mod='postfinancecheckout'}</span>
-				<span class="postfinancecheckout-payment-fee-value">
-					{if $priceDisplay}
-			          	{displayPrice price=$feeValues.fee_total} {if $display_tax_label}{l s='(tax excl.)' mod='postfinancecheckout'}{/if}
-			        {else}
-			          	{displayPrice price=$feeValues.fee_total_wt} {if $display_tax_label}{l s='(tax incl.)' mod='postfinancecheckout'}{/if}
-			        {/if}
-		       </span>
-		   </span>
-		{/if}					
-				</a>
-			</p>	
+					onclick="document.getElementById('postfinancecheckout-{$methodId}-link').click();" >
+				<a class="postfinancecheckout" id="postfinancecheckout-{$methodId}-link" href="{$link|escape:'html'}" title="{$name}" >{$name}</a>
+			{if !empty($description)}
+				<span class="payment-method-description">{$description}</span>
+			{/if}
+			{if !empty($feeValues)}
+				<span class="postfinancecheckout-payment-fee"><span class="postfinancecheckout-payment-fee-text">{l s='Additional Fee:' mod='postfinancecheckout'}</span>
+					<span class="postfinancecheckout-payment-fee-value">
+						{if $priceDisplay}
+				          	{displayPrice price=$feeValues.fee_total} {if $display_tax_label}{l s='(tax excl.)' mod='postfinancecheckout'}{/if}
+				        {else}
+				          	{displayPrice price=$feeValues.fee_total_wt} {if $display_tax_label}{l s='(tax incl.)' mod='postfinancecheckout'}{/if}
+				        {/if}
+			       </span>
+			   </span>
+			{/if}
+			</div>					
+		</div>	
 	</div>
 </div>
-
