@@ -12,7 +12,7 @@
 {/capture}
 
 <h1 class="page-heading">
-    {l s='Order summary' mod='postfinancecheckout'}
+    {l s='Order Review' mod='postfinancecheckout'}
 </h1>
 
 {assign var='current_step' value='payment'}
@@ -24,18 +24,51 @@
     </p>
 {else}
 	{if $showCart}
+		<div class="box">
+			<p>
+                <strong class="dark">
+				{l s='Please finalize the order by clicking "I confirm my order".' mod='postfinancecheckout'}
+			 </strong>
+            </p>
+		</div>
 		{assign var='cartTemplate' value="{postfinancecheckout_resolve_template template='cart_contents.tpl'}"}
 		{include file="$cartTemplate"}
+	{else}
+		<div class="box">
+			<p class="postfinancecheckout-indent">
+                <strong class="dark">
+                	{l s='Please finalize your order.' mod='postfinancecheckout'}
+                </strong>
+            </p>
+			<p>
+                - {l s='The total amount of your order comes to' mod='postfinancecheckout'}
+	                <span id="amount" class="price">{displayPrice price=$total_price}</span>
+					{if $use_taxes == 1}
+				    	{l s='(tax incl.)' mod='postfinancecheckout'}
+				    {/if}
+            </p>
+            <p>
+                - {l s='To finalize the order click "I confirm my order".' mod='postfinancecheckout'}
+            </p>
+		</div>
 	{/if}
 	
 	<div id="postfinancecheckout-error-messages"></div>
 	
+	
+	<div id="postfinancecheckout-payment-container" class="invisible">
+	<h3 class="page-subheading" id="postfinancecheckout-method-title">
+        <span><span style="font-size:smaller">{l s='Payment Method:' mod='postfinancecheckout'}</span> {$name}</span>
+        
+        <button class="button btn btn-default button-medium postfinancecheckout-submit right" id="postfinancecheckout-submit-top" disabled>
+            <span>{l s='I confirm my order' mod='postfinancecheckout'}<i class="icon-chevron-right right"></i></span>
+        </button>
+    </h3>
+	</div>
 	<form action="{$form_target_url|escape:'html':'UTF-8'}" method="post" id="postfinancecheckout-payment-form">
     	<input type="hidden" name="cartHash" value="{$cartHash}" />
     	<input type="hidden" name="methodId" value="{$methodId}" />
-    	<h3 class="page-subheading">
-                <span style="font-size:smaller">{l s='Payment Method:' mod='postfinancecheckout'}</span> {$name}
-        </h3>
+    	
         <div id="postfinancecheckout-method-configuration" class="postfinancecheckout-method-configuration" style="display: none;"
 	data-method-id="{$methodId}" data-configuration-id="{$configurationId}"></div>
 		<div id="postfinancecheckout-method-container">
@@ -60,11 +93,12 @@
             <a class="button-exclusive btn btn-default" href="{$link->getPageLink('order', true, NULL, "step=3")|escape:'html':'UTF-8'}" tabindex="-1" id="postfinancecheckout-back">
                 <i class="icon-chevron-left"></i>{l s='Other payment methods' mod='postfinancecheckout'}
             </a>
-            <button class="button btn btn-default button-medium" id="postfinancecheckout-submit" disabled>
+            <button class="button btn btn-default button-medium postfinancecheckout-submit" id="postfinancecheckout-submit-bottom" disabled>
                 <span>{l s='I confirm my order' mod='postfinancecheckout'}<i class="icon-chevron-right right"></i></span>
             </button>
         </p>
     </form>
+    
     <script type="text/javascript">$("a.iframe").fancybox({
 		"type" : "iframe",
 		"width":600,

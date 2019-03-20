@@ -18,7 +18,7 @@ jQuery(function($) {
 
 	init : function() {
 		this.handlerCounter = 0;
-	    var configuration = $("#postfinancecheckout-method-configuration");
+	    var configuration = $('#postfinancecheckout-method-configuration');
 	    this.configuration_id = configuration.data("configuration-id");
 	    this.register_method();
 	    this.register_button_handler();
@@ -46,6 +46,9 @@ jQuery(function($) {
 	    this.iframe_handler.setValidationCallback(function(validation_result) {
 			self.process_validation(validation_result);
 	    	});
+	    this.iframe_handler .setHeightChangeCallback(function(height) {
+			self.handle_iframe_height(height);
+		    });	    
 	    this.iframe_handler.setInitializeCallback(function(){
 			$('#postfinancecheckout-iframe-possible').remove();
 			$('.postfinancecheckout-loader').remove();
@@ -59,16 +62,28 @@ jQuery(function($) {
 	},
 	
 	register_button_handler : function(){
-	    $("#postfinancecheckout-submit").off("click.postfinancecheckout").on("click.postfinancecheckout", {
+	    $('.postfinancecheckout-submit').off('click.postfinancecheckout').on('click.postfinancecheckout', {
 			self : this
 	    	}, this.handler_submit);
 	},
+	
+	
+	handle_iframe_height : function(height) {
+	    var item = $('#postfinancecheckout-payment-container');
+	    if (height == 0) {
+			item.addClass('invisible');
+	    }
+	    else{
+			item.removeClass('invisible')
+	    }
+	},
+	
 	
 	handler_submit : function(event) {
 	    var self = event.data.self;
 	    self.disable_pay_button();
 	    
-	    var tosInput = $("#cgv");
+	    var tosInput = $('#cgv');
 	    if(tosInput.size() > 0){
 			if(!tosInput.is(':checked')){
 			    self.remove_existing_errors();
@@ -89,11 +104,11 @@ jQuery(function($) {
 	process_validation : function(validation_result) {
 	    var self = this;
 	    if (validation_result.success) {
-			var form = $("#postfinancecheckout-payment-form");		
+			var form = $('#postfinancecheckout-payment-form');		
 			$.ajax({
 				type:		'POST',
-				dataType: 	"json",
-				url: 		form.attr("action"),
+				dataType: 	'json',
+				url: 		form.attr('action'),
 				data: 		form.serialize(),
 				success: 	function(response, textStatus, jqXHR) {
 					if ( response.result == 'success' ) {
@@ -101,7 +116,7 @@ jQuery(function($) {
 					    	return;
 					}
 					else if(response.result =='redirect'){
-						location.replace(response.redirect+"&paymentMethodConfigurationId="+self.configuration_id);
+						location.replace(response.redirect+'&paymentMethodConfigurationId='+self.configuration_id);
 						return;
 					}
 					else if ( response.result == 'failure' ) {
@@ -137,23 +152,23 @@ jQuery(function($) {
 	},
 	
 	disable_pay_button : function(){
-	    $("#postfinancecheckout-submit").prop('disabled', true);
+	    $('.postfinancecheckout-submit').prop('disabled', true);
 	},
 	
 	enable_pay_button : function(){
-	    $("#postfinancecheckout-submit").prop('disabled', false);
+	    $('.postfinancecheckout-submit').prop('disabled', false);
 	},
 	
 	remove_existing_errors : function(){
-	    $("#postfinancecheckout-error-messages").empty();
-	    $("#postfinancecheckout-error-messages").removeClass("alert alert-danger");
+	    $('#postfinancecheckout-error-messages').empty();
+	    $('#postfinancecheckout-error-messages').removeClass("alert alert-danger");
 	},
 	
 	show_new_errors : function(message){
-	    $("#postfinancecheckout-error-messages").addClass("alert alert-danger");
-	    $("#postfinancecheckout-error-messages").append("<div>"+message+"</div>");
+	    $('#postfinancecheckout-error-messages').addClass('alert alert-danger');
+	    $('#postfinancecheckout-error-messages').append('<div>'+message+'</div>');
 	    $('html, body').animate({
-	    	scrollTop : ($("#postfinancecheckout-error-messages").offset().top - 20)
+	    	scrollTop : ($('#postfinancecheckout-error-messages').offset().top - 20)
 		}, 1000);
     
 	},

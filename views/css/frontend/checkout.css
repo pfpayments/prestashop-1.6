@@ -45,7 +45,7 @@ div.postfinancecheckout-method a:not(.postfinancecheckout) {
 	text-decoration: underline;
 }
 
-div.postfinancecheckout-method div.postfinancecheckout:after {
+div.postfinancecheckout-method div.postfinancecheckout:not(.amount-error):after {
 	display: block;
 	content: "\f054";
 	position: absolute;
@@ -57,6 +57,11 @@ div.postfinancecheckout-method div.postfinancecheckout:after {
 	height: 22px;
 	width: 14px;
 	color: #777;
+}
+
+div.postfinancecheckout-method div.amount-error span.danger {
+    font-weight: bold;
+    color: #333;
 }
 
 div.postfinancecheckout-method div span.postfinancecheckout-payment-fee {
@@ -79,6 +84,20 @@ div#postfinancecheckout-method-container {
 	margin-left: auto;
 }
 
+div#postfinancecheckout-payment-container h3{
+	display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+div#postfinancecheckout-payment-container.invisible {
+	display:none;
+}
+
+button#postfinancecheckout-submit-top {
+	border-radius: 4px;
+}
+
 .postfinancecheckout-loader {
 	border: 16px solid #f3f3f3; /* Light grey */
     border-top: 16px solid #3eb0eb; /* Blue */
@@ -92,5 +111,9 @@ div#postfinancecheckout-method-container {
 @keyframes postfinancecheckout-spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+p.postfinancecheckout-indent {
+    margin-bottom: 9px;
 }
 	

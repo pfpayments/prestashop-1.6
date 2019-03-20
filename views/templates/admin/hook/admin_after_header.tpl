@@ -33,9 +33,9 @@
 						</p>
 					</a>
 					{else}
-						<p>
+						<span class="no_notifs">
 						{l s='There are no manual tasks.' mod='postfinancecheckout'}
-						</p>
+						</span>
 					{/if}
 				</div>
 			</section>
