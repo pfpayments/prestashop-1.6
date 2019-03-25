@@ -23,6 +23,9 @@
         {l s='Your shopping cart is empty.' mod='postfinancecheckout'}
     </p>
 {else}
+	<div id="postfinancecheckout-processing-spinner-container" class="postfinancecheckout-processing-spinner-container invisible">
+		<div class="postfinancecheckout-processing-spinner"></div>
+	</div>
 	{if $showCart}
 		<div class="box">
 			<p>
