@@ -19,9 +19,20 @@
 			{if !empty($description)}
 				<span class="payment-method-description">{$description}</span>
 			{/if}
+			{if !empty($surchargeValues)}
+				<span class="postfinancecheckout-surcharge postfinancecheckout-additional-amount"><span class="postfinancecheckout-surcharge-text postfinancecheckout-additional-amount-text">{l s='Minimum Sales Surcharge:' mod='postfinancecheckout'}</span>
+					<span class="postfinancecheckout-surcharge-value postfinancecheckout-additional-amount-value">
+						{if $priceDisplay}
+				          	{displayPrice price=$surchargeValues.surcharge_total} {if $display_tax_label}{l s='(tax excl.)' mod='postfinancecheckout'}{/if}
+				        {else}
+				          	{displayPrice price=$surchargeValues.surcharge_total_wt} {if $display_tax_label}{l s='(tax incl.)' mod='postfinancecheckout'}{/if}
+				        {/if}
+			       </span>
+			   </span>
+			{/if}
 			{if !empty($feeValues)}
-				<span class="postfinancecheckout-payment-fee"><span class="postfinancecheckout-payment-fee-text">{l s='Additional Fee:' mod='postfinancecheckout'}</span>
-					<span class="postfinancecheckout-payment-fee-value">
+				<span class="postfinancecheckout-payment-fee postfinancecheckout-additional-amount"><span class="postfinancecheckout-payment-fee-text postfinancecheckout-additional-amount-text">{l s='Payment Fee:' mod='postfinancecheckout'}</span>
+					<span class="postfinancecheckout-payment-fee-value postfinancecheckout-additional-amount-value">
 						{if $priceDisplay}
 				          	{displayPrice price=$feeValues.fee_total} {if $display_tax_label}{l s='(tax excl.)' mod='postfinancecheckout'}{/if}
 				        {else}

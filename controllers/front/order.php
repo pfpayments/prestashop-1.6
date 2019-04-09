@@ -53,7 +53,10 @@ class PostFinanceCheckoutOrderModuleFrontController extends PostFinanceCheckout_
             $this->context->cookie->checkedTOS = 1;
         }
                 
+        PostFinanceCheckout_FeeHelper::removeFeeSurchargeProductsFromCart($cart);
+        PostFinanceCheckout_FeeHelper::addSurchargeProductToCart($cart);
         PostFinanceCheckout_FeeHelper::addFeeProductToCart($methodConfiguration, $cart);
+        
         if ($cartHash != PostFinanceCheckout_Helper::calculateCartHash($cart)) {
             $this->context->cookie->pfc_error = $this->module->l('The cart was changed, please try again.', 'order');
             echo json_encode(array('result' => 'failure', 'reload' => 'true'));

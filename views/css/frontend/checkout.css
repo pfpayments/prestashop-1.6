@@ -64,16 +64,16 @@ div.postfinancecheckout-method div.amount-error span.danger {
     color: #333;
 }
 
-div.postfinancecheckout-method div span.postfinancecheckout-payment-fee {
+div.postfinancecheckout-method div span.postfinancecheckout-additional-amount {
 	display:block;
 	font-size: 0.8em;
 }
 
-div.postfinancecheckout-method div span.postfinancecheckout-payment-fee span.postfinancecheckout-payment-fee-text{
+div.postfinancecheckout-method div span.postfinancecheckout-additional-amount span.postfinancecheckout-additional-amount-text{
 	font-weight: normal;
 }
 
-div.postfinancecheckout-method a span.postfinancecheckout-payment-fee span.postfinancecheckout-payment-fee-value{
+div.postfinancecheckout-method a span.postfinancecheckout-additional-amount span.postfinancecheckout-additional-amount-value{
 	font-weight: bold;
 }
 

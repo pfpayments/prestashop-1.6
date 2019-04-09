@@ -43,6 +43,8 @@ class PostFinanceCheckoutPaymentModuleFrontController extends PostFinanceCheckou
             Tools::redirect($this->context->link->getPageLink('order', true, null, "step=3"));
         }
 
+        PostFinanceCheckout_FeeHelper::removeFeeSurchargeProductsFromCart($cart);
+        PostFinanceCheckout_FeeHelper::addSurchargeProductToCart($cart);
         PostFinanceCheckout_FeeHelper::addFeeProductToCart($methodConfiguration, $cart);
         
         $this->assignSummaryInformations($cart);
