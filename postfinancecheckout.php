@@ -41,7 +41,11 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
         $this->author = 'Customweb GmbH';
         $this->bootstrap = true;
         $this->need_instance = 0;
-        $this->version = '1.1.0';
+        $this->version = '1.1.2';
+        $this->description = sprintf(
+            $this->l('This PrestaShop module enables to process payments with %s.'),
+            'PostFinance Checkout'
+        );
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => '1.6.1.21');
         parent::__construct();
     }
@@ -359,6 +363,12 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
                     'form' => ""
             ));
         } catch (Exception $e) {
+            PrestaShopLogger::addLog(
+                $e->getMessage()." CartId: ".$cart->id,
+                1,
+                null,
+                'PostFinanceCheckout'
+                );
             return;
         }
         $shopId = $cart->id_shop;
@@ -439,6 +449,12 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
                 );
             return $this->display(__DIR__, 'hook/amount_error.tpl');        
         } catch (Exception $e) {
+            PrestaShopLogger::addLog(
+                $e->getMessage()." CartId: ".$cart->id,
+                1,
+                null,
+                'PostFinanceCheckout'
+                );
             return;
         }
         $shopId = $cart->id_shop;
