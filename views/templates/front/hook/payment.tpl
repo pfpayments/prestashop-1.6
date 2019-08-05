@@ -1,7 +1,7 @@
 {*
  * PostFinance Checkout Prestashop
  *
- * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
+ * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout).
  *
  * @author customweb GmbH (http://www.customweb.com/)
  * @copyright 2017 - 2019 customweb GmbH
@@ -14,10 +14,10 @@
 					{if !empty($image)} 
 						style="background-image: url({$image|escape:'html'}); background-repeat: no-repeat; background-size: 64px; background-position:15px;"		
 					{/if}
-					onclick="document.getElementById('postfinancecheckout-{$methodId}-link').click();" >
-				<a class="postfinancecheckout" id="postfinancecheckout-{$methodId}-link" href="{$link|escape:'html'}" title="{$name}" >{$name}</a>
+					onclick="document.getElementById('postfinancecheckout-{$methodId|escape:'html':'UTF-8'}-link').click();" >
+				<a class="postfinancecheckout" id="postfinancecheckout-{$methodId|escape:'html':'UTF-8'}-link" href="{$link|escape:'html'}" title="{$name}" >{$name}</a>
 			{if !empty($description)}
-				<span class="payment-method-description">{$description}</span>
+				<span class="payment-method-description">{postfinancecheckout_clean_html text=$description}</span>
 			{/if}
 			{if !empty($surchargeValues)}
 				<span class="postfinancecheckout-surcharge postfinancecheckout-additional-amount"><span class="postfinancecheckout-surcharge-text postfinancecheckout-additional-amount-text">{l s='Minimum Sales Surcharge:' mod='postfinancecheckout'}</span>

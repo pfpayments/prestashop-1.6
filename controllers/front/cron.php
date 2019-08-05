@@ -2,7 +2,7 @@
 /**
  * PostFinance Checkout Prestashop
  *
- * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
+ * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout).
  *
  * @author customweb GmbH (http://www.customweb.com/)
  * @copyright 2017 - 2019 customweb GmbH
@@ -11,7 +11,6 @@
 
 class PostFinanceCheckoutCronModuleFrontController extends ModuleFrontController
 {
-
     public $display_column_left = false;
 
     public $ssl = true;
@@ -35,29 +34,28 @@ class PostFinanceCheckoutCronModuleFrontController extends ModuleFrontController
         if (is_callable('fastcgi_finish_request')) {
             fastcgi_finish_request();
         }
-        
+
         $securityToken = Tools::getValue('security_token', false);
         if (! $securityToken) {
             die();
         }
         $time = new DateTime();
-        PostFinanceCheckout_Helper::startDBTransaction();
+        PostFinanceCheckoutHelper::startDBTransaction();
         try {
             $sqlUpdate = 'UPDATE ' . _DB_PREFIX_ . 'pfc_cron_job SET constraint_key = 0, state = "' .
-                 pSQL(PostFinanceCheckout_Cron::STATE_PROCESSING) . '" , date_started = "' .
-                 pSQL($time->format('Y-m-d H:i:s')) . '" WHERE security_token = "' . pSQL(
-                     $securityToken
-                 ) . '" AND state = "' . pSQL(PostFinanceCheckout_Cron::STATE_PENDING) . '"';
-            
+                pSQL(PostFinanceCheckoutCron::STATE_PROCESSING) . '" , date_started = "' .
+                pSQL($time->format('Y-m-d H:i:s')) . '" WHERE security_token = "' . pSQL($securityToken) .
+                '" AND state = "' . pSQL(PostFinanceCheckoutCron::STATE_PENDING) . '"';
+
             $updateResult = DB::getInstance()->execute($sqlUpdate, false);
             if (! $updateResult) {
                 $code = DB::getInstance()->getNumberError();
-                if ($code == PostFinanceCheckout::MYSQL_DUPLICATE_CONSTRAINT_ERROR_CODE) {
-                    PostFinanceCheckout_Helper::rollbackDBTransaction();
+                if ($code == PostFinanceCheckoutBasemodule::MYSQL_DUPLICATE_CONSTRAINT_ERROR_CODE) {
+                    PostFinanceCheckoutHelper::rollbackDBTransaction();
                     // Another Cron already running
                     die();
                 } else {
-                    PostFinanceCheckout_Helper::rollbackDBTransaction();
+                    PostFinanceCheckoutHelper::rollbackDBTransaction();
                     PrestaShopLogger::addLog(
                         'Could not update cron job. ' . DB::getInstance()->getMsgError(),
                         2,
@@ -69,17 +67,17 @@ class PostFinanceCheckoutCronModuleFrontController extends ModuleFrontController
             }
             if (DB::getInstance()->Affected_Rows() == 0) {
                 // Simultaneous Request
-                PostFinanceCheckout_Helper::commitDBTransaction();
+                PostFinanceCheckoutHelper::commitDBTransaction();
                 die();
             }
         } catch (PrestaShopDatabaseException $e) {
             $code = DB::getInstance()->getNumberError();
-            if ($code == PostFinanceCheckout::MYSQL_DUPLICATE_CONSTRAINT_ERROR_CODE) {
-                PostFinanceCheckout_Helper::rollbackDBTransaction();
+            if ($code == PostFinanceCheckoutBasemodule::MYSQL_DUPLICATE_CONSTRAINT_ERROR_CODE) {
+                PostFinanceCheckoutHelper::rollbackDBTransaction();
                 // Another Cron already running
                 die();
             } else {
-                PostFinanceCheckout_Helper::rollbackDBTransaction();
+                PostFinanceCheckoutHelper::rollbackDBTransaction();
                 PrestaShopLogger::addLog(
                     'Could not update cron job. ' . DB::getInstance()->getMsgError(),
                     2,
@@ -89,12 +87,12 @@ class PostFinanceCheckoutCronModuleFrontController extends ModuleFrontController
                 die();
             }
         }
-        PostFinanceCheckout_Helper::commitDBTransaction();
-        
+        PostFinanceCheckoutHelper::commitDBTransaction();
+
         // We reduce max running time, so th cron has time to clean up.
         $maxTime = $time->format("U");
-        $maxTime += PostFinanceCheckout_Cron::MAX_RUN_TIME_MINUTES * 60 - 60;
-        
+        $maxTime += PostFinanceCheckoutCron::MAX_RUN_TIME_MINUTES * 60 - 60;
+
         $tasks = Hook::exec("postFinanceCheckoutCron", array(), null, true, false);
         $error = array();
         foreach ($tasks as $module => $subTasks) {
@@ -112,7 +110,7 @@ class PostFinanceCheckoutCronModuleFrontController extends ModuleFrontController
                     call_user_func($subTask, $maxTime);
                 } catch (Exception $e) {
                     $error[] = "Module '$module' does not handle all exceptions in task '$callableName'. Exception Message: " .
-                         $e->getMessage();
+                        $e->getMessage();
                 }
                 if ($maxTime + 15 < time()) {
                     $error[] = "Module '$module' returns not callable task '$callableName' does not respect the max runtime.";
@@ -120,23 +118,23 @@ class PostFinanceCheckoutCronModuleFrontController extends ModuleFrontController
                 }
             }
         }
-        PostFinanceCheckout_Helper::startDBTransaction();
+        PostFinanceCheckoutHelper::startDBTransaction();
         try {
-            $status = PostFinanceCheckout_Cron::STATE_SUCCESS;
+            $status = PostFinanceCheckoutCron::STATE_SUCCESS;
             $errorMessage = "";
             if (! empty($error)) {
-                $status = PostFinanceCheckout_Cron::STATE_ERROR;
+                $status = PostFinanceCheckoutCron::STATE_ERROR;
                 $errorMessage = implode("\n", $error);
             }
             $endTime = new DateTime();
             $sqlUpdate = 'UPDATE ' . _DB_PREFIX_ . 'pfc_cron_job SET constraint_key = id_cron_job, state = "' .
-                 pSQL($status) . '" , date_finished = "' . pSQL($endTime->format('Y-m-d H:i:s')) .
-                 '", error_msg = "'.pSQL($errorMessage).'" WHERE security_token = "' . pSQL($securityToken) . '" AND state = "' .
-                 pSQL(PostFinanceCheckout_Cron::STATE_PROCESSING) . '"';
-            
+                pSQL($status) . '" , date_finished = "' . pSQL($endTime->format('Y-m-d H:i:s')) . '", error_msg = "' .
+                pSQL($errorMessage) . '" WHERE security_token = "' . pSQL($securityToken) . '" AND state = "' .
+                pSQL(PostFinanceCheckoutCron::STATE_PROCESSING) . '"';
+
             $updateResult = DB::getInstance()->execute($sqlUpdate, false);
             if (! $updateResult) {
-                PostFinanceCheckout_Helper::rollbackDBTransaction();
+                PostFinanceCheckoutHelper::rollbackDBTransaction();
                 PrestaShopLogger::addLog(
                     'Could not update finished cron job. ' . DB::getInstance()->getMsgError(),
                     2,
@@ -145,9 +143,9 @@ class PostFinanceCheckoutCronModuleFrontController extends ModuleFrontController
                 );
                 die();
             }
-            PostFinanceCheckout_Helper::commitDBTransaction();
+            PostFinanceCheckoutHelper::commitDBTransaction();
         } catch (PrestaShopDatabaseException $e) {
-            PostFinanceCheckout_Helper::rollbackDBTransaction();
+            PostFinanceCheckoutHelper::rollbackDBTransaction();
             PrestaShopLogger::addLog(
                 'Could not update finished cron job. ' . DB::getInstance()->getMsgError(),
                 2,
@@ -156,7 +154,7 @@ class PostFinanceCheckoutCronModuleFrontController extends ModuleFrontController
             );
             die();
         }
-        PostFinanceCheckout_Cron::insertNewPendingCron();
+        PostFinanceCheckoutCron::insertNewPendingCron();
         die();
     }
 

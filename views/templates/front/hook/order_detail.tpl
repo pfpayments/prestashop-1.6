@@ -1,7 +1,7 @@
 {*
  * PostFinance Checkout Prestashop
  *
- * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
+ * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout).
  *
  * @author customweb GmbH (http://www.customweb.com/)
  * @copyright 2017 - 2019 customweb GmbH
@@ -11,13 +11,13 @@
 {if !empty($postFinanceCheckoutInvoice)}
 	<p class="postfinancecheckout-document">
 		<i class="icon-file-text-o"></i>
-		<a target="_blank" href="{$postFinanceCheckoutInvoice|escape:'html':'UTF-8'}">{l s='Download your %s invoice as a PDF file.' sprintf='PostFinance Checkout' mod='postfinancecheckout'}</a>
+		<a target="_blank" href="{$postFinanceCheckoutInvoice|escape:'html'}">{l s='Download your %s invoice as a PDF file.' sprintf='PostFinance Checkout' mod='postfinancecheckout'}</a>
 	</p>
 {/if}
 {if !empty($postFinanceCheckoutPackingSlip)}
 	<p class="postfinancecheckout-document">
 		<i class="icon-truck"></i>
-		<a target="_blank" href="{$postFinanceCheckoutPackingSlip|escape:'html':'UTF-8'}">{l s='Download your %s packing slip as a PDF file.' sprintf='PostFinance Checkout' mod='postfinancecheckout'}</a>
+		<a target="_blank" href="{$postFinanceCheckoutPackingSlip|escape:'html'}">{l s='Download your %s packing slip as a PDF file.' sprintf='PostFinance Checkout' mod='postfinancecheckout'}</a>
 	</p>
 {/if}
 </div>

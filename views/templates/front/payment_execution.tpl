@@ -1,14 +1,14 @@
 {*
  * PostFinance Checkout Prestashop
  *
- * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
+ * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout).
  *
  * @author customweb GmbH (http://www.customweb.com/)
  * @copyright 2017 - 2019 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  *}
 {capture name=path}
-    <a href="{$link->getPageLink('order', true, NULL, "step=3")|escape:'html':'UTF-8'}" title="{l s='Go back to the Checkout' mod='postfinancecheckout'}">{l s='Checkout' mod='postfinancecheckout'}</a><span class="navigation-pipe">{$navigationPipe}</span>{$name}
+    <a href="{$link->getPageLink('order', true, NULL, "step=3")|escape:'html'}" title="{l s='Go back to the Checkout' mod='postfinancecheckout'}">{l s='Checkout' mod='postfinancecheckout'}</a><span class="navigation-pipe">{$navigationPipe}</span>{$name|escape:'html':'UTF-8'}
 {/capture}
 
 <h1 class="page-heading">
@@ -61,19 +61,19 @@
 	
 	<div id="postfinancecheckout-payment-container" class="invisible">
 	<h3 class="page-subheading" id="postfinancecheckout-method-title">
-        <span><span style="font-size:smaller">{l s='Payment Method:' mod='postfinancecheckout'}</span> {$name}</span>
+        <span><span style="font-size:smaller">{l s='Payment Method:' mod='postfinancecheckout'}</span> {$name|escape:'html':'UTF-8'}</span>
         
         <button class="button btn btn-default button-medium postfinancecheckout-submit right" id="postfinancecheckout-submit-top" disabled>
             <span>{l s='I confirm my order' mod='postfinancecheckout'}<i class="icon-chevron-right right"></i></span>
         </button>
     </h3>
 	</div>
-	<form action="{$form_target_url|escape:'html':'UTF-8'}" method="post" id="postfinancecheckout-payment-form">
-    	<input type="hidden" name="cartHash" value="{$cartHash}" />
-    	<input type="hidden" name="methodId" value="{$methodId}" />
+	<form action="{$form_target_url|escape:'html'}" method="post" id="postfinancecheckout-payment-form">
+    	<input type="hidden" name="cartHash" value="{$cartHash|escape:'html':'UTF-8'}" />
+    	<input type="hidden" name="methodId" value="{$methodId|escape:'html':'UTF-8'}" />
     	
         <div id="postfinancecheckout-method-configuration" class="postfinancecheckout-method-configuration" style="display: none;"
-	data-method-id="{$methodId}" data-configuration-id="{$configurationId}"></div>
+	data-method-id="{$methodId|escape:'html':'UTF-8'}" data-configuration-id="{$configurationId|escape:'html':'UTF-8'}"></div>
 		<div id="postfinancecheckout-method-container">
 			<input type="hidden" id="postfinancecheckout-iframe-possible" name="postfinancecheckout-iframe-possible" value="false" />
 			<div class="postfinancecheckout-loader"></div>		
@@ -81,7 +81,7 @@
 		
 		{if $showTOS && $conditions && $cmsId}
 	 		{if isset($overrideTOSDisplay) && $overrideTOSDisplay}
-	        	{$overrideTOSDisplay}
+	        	{$overrideTOSDisplay|escape:'html':'UTF-8'}
 			{else}
 				<div class="box">
 					<p class="checkbox">

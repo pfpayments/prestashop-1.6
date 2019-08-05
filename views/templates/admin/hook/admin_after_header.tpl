@@ -1,7 +1,7 @@
 {*
  * PostFinance Checkout Prestashop
  *
- * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
+ * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout).
  *
  * @author customweb GmbH (http://www.customweb.com/)
  * @copyright 2017 - 2019 customweb GmbH
@@ -13,7 +13,7 @@
 			<i class="icon-bullhorn"></i>
 				{if $manualTotal > 0}
 					<span id="postfinancecheckout_manual_messages_notif_number_wrapper" class="notifs_badge">
-						<span id="postfinancecheckout_manual_messages_notif_value">{$manualTotal}</span>
+						<span id="postfinancecheckout_manual_messages_notif_value">{$manualTotal|escape:'html':'UTF-8'}</span>
 					</span>
 				{/if}
 		</a>
@@ -24,7 +24,7 @@
 				</div>
 				<div id="list_postfinancecheckout_manual_messages_notif" class="list_notif">
 					{if $manualTotal > 0}
-					<a href="{$manualUrl|escape:'html':'UTF-8'}" target="_blank">
+					<a href="{$manualUrl|escape:'html'}" target="_blank">
 						<p>{if $manualTotal > 1}
 							{l s='There are %s manual tasks that need your attention.' sprintf=$manualTotal mod='postfinancecheckout'}
 						{else}

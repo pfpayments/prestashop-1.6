@@ -2,17 +2,17 @@
 /**
  * PostFinance Checkout Prestashop
  *
- * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
+ * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout).
  *
  * @author customweb GmbH (http://www.customweb.com/)
  * @copyright 2017 - 2019 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  */
 
-class PostFinanceCheckoutPaymentModuleFrontController extends PostFinanceCheckout_FrontPaymentController
+class PostFinanceCheckoutPaymentModuleFrontController extends PostFinanceCheckoutFrontpaymentcontroller
 {
-
     public $display_column_left = false;
+
     public $ssl = true;
 
     /**
@@ -24,49 +24,58 @@ class PostFinanceCheckoutPaymentModuleFrontController extends PostFinanceCheckou
         parent::initContent();
         $methodId = Tools::getValue('methodId', null);
         if ($methodId == null) {
-            $this->context->cookie->pfc_error = $this->module->l('There was a technical issue, please try again.', 'payment');
+            $this->context->cookie->pfc_error = $this->module->l(
+                'There was a technical issue, please try again.',
+                'payment'
+            );
             Tools::redirect('index.php?controller=order&step=3');
         }
         $cart = $this->context->cart;
-        
+
         $redirect = $this->checkAvailablility($cart);
-        if (!empty($redirect)) {
+        if (! empty($redirect)) {
             Tools::redirect($redirect);
             die();
         }
-                   
-        $spaceId = Configuration::get(PostFinanceCheckout::CK_SPACE_ID, null, null, $cart->id_shop);
-        $methodConfiguration = new PostFinanceCheckout_Model_MethodConfiguration($methodId);
-        
+
+        $spaceId = Configuration::get(PostFinanceCheckoutBasemodule::CK_SPACE_ID, null, null, $cart->id_shop);
+        $methodConfiguration = new PostFinanceCheckoutModelMethodconfiguration($methodId);
+
         if (! $methodConfiguration->isActive() || $methodConfiguration->getSpaceId() != $spaceId) {
-            $this->context->cookie->pfc_error = $this->module->l('This payment method is no longer available, please try another one.', 'payment');
+            $this->context->cookie->pfc_error = $this->module->l(
+                'This payment method is no longer available, please try another one.',
+                'payment'
+            );
             Tools::redirect($this->context->link->getPageLink('order', true, null, "step=3"));
         }
 
-        PostFinanceCheckout_FeeHelper::removeFeeSurchargeProductsFromCart($cart);
-        PostFinanceCheckout_FeeHelper::addSurchargeProductToCart($cart);
-        PostFinanceCheckout_FeeHelper::addFeeProductToCart($methodConfiguration, $cart);
-        
+        PostFinanceCheckoutFeehelper::removeFeeSurchargeProductsFromCart($cart);
+        PostFinanceCheckoutFeehelper::addSurchargeProductToCart($cart);
+        PostFinanceCheckoutFeehelper::addFeeProductToCart($methodConfiguration, $cart);
+
         $this->assignSummaryInformations($cart);
-        $cartHash = PostFinanceCheckout_Helper::calculateCartHash($cart);
+        $cartHash = PostFinanceCheckoutHelper::calculateCartHash($cart);
         $showCart = Configuration::get(PostFinanceCheckout::CK_SHOW_CART, null, null, $cart->id_shop);
         $showTos = Configuration::get(PostFinanceCheckout::CK_SHOW_TOS, null, null, $cart->id_shop);
-        
+
         $jsUrl = null;
         try {
-            $jsUrl = PostFinanceCheckout_Service_Transaction::instance()->getJavascriptUrl($cart);
+            $jsUrl = PostFinanceCheckoutServiceTransaction::instance()->getJavascriptUrl($cart);
         } catch (Exception $e) {
-            $this->context->cookie->pfc_error = $this->module->l('There was a technical issue, please try again.', 'payment');
+            $this->context->cookie->pfc_error = $this->module->l(
+                'There was a technical issue, please try again.',
+                'payment'
+            );
             Tools::redirect('index.php?controller=order&step=3');
         }
-        
+
         $name = $methodConfiguration->getConfigurationName();
         $language = $this->context->language->language_code;
-        $translatedName = PostFinanceCheckout_Helper::translate($methodConfiguration->getTitle(), $language);
+        $translatedName = PostFinanceCheckoutHelper::translate($methodConfiguration->getTitle(), $language);
         if (! empty($translatedName)) {
             $name = $translatedName;
         }
-        
+
         $hook_override_tos_display = Hook::exec('overrideTOSDisplay');
         $cms = new CMS(Configuration::get('PS_CONDITIONS_CMS_ID'), $this->context->language->id);
         $this->link_conditions = $this->context->link->getCMSLink(
@@ -79,7 +88,7 @@ class PostFinanceCheckoutPaymentModuleFrontController extends PostFinanceCheckou
         } else {
             $this->link_conditions .= '&content_only=1';
         }
-        
+
         $this->context->smarty->registerPlugin(
             'function',
             'postfinancecheckout_resolve_template',
@@ -95,7 +104,7 @@ class PostFinanceCheckoutPaymentModuleFrontController extends PostFinanceCheckou
                 'showTOS' => $showTos,
                 'cmsId' => (int) Configuration::get('PS_CONDITIONS_CMS_ID'),
                 'conditions' => (int) Configuration::get('PS_CONDITIONS'),
-                'checkedTOS'=> 0,
+                'checkedTOS' => 0,
                 'linkConditions' => $this->link_conditions,
                 'overrideTOSDisplay' => $hook_override_tos_display,
                 'cartHash' => $cartHash,
@@ -104,8 +113,13 @@ class PostFinanceCheckoutPaymentModuleFrontController extends PostFinanceCheckou
                 'this_path' => $this->module->getPathUri(),
                 'this_path_bw' => $this->module->getPathUri(),
                 'this_path_ssl' => Tools::getShopDomainSsl(true, true) . __PS_BASE_URI__ . 'modules/' .
-                     $this->module->name . '/',
-                'form_target_url' => $this->context->link->getModuleLink('postfinancecheckout', 'order', array(), true)
+                $this->module->name . '/',
+                'form_target_url' => $this->context->link->getModuleLink(
+                    'postfinancecheckout',
+                    'order',
+                    array(),
+                    true
+                )
             )
         );
         $this->addJquery();
@@ -113,7 +127,7 @@ class PostFinanceCheckoutPaymentModuleFrontController extends PostFinanceCheckou
         $this->addJS(__PS_BASE_URI__ . 'modules/' . $this->module->name . '/views/js/frontend/checkout.js');
         $this->addJqueryPlugin('fancybox');
         $this->addCSS(__PS_BASE_URI__ . 'modules/' . $this->module->name . '/views/css/frontend/checkout.css');
-        
+
         $this->setTemplate('payment_execution.tpl');
     }
 
@@ -130,13 +144,13 @@ class PostFinanceCheckoutPaymentModuleFrontController extends PostFinanceCheckou
     {
         $summary = $cart->getSummaryDetails(null, true);
         $customizedDatas = Product::getAllCustomizedDatas($cart->id);
-        
+
         // override customization tax rate with real tax (tax rules)
         if ($customizedDatas) {
             foreach ($summary['products'] as &$productUpdate) {
                 $productId = (int) isset($productUpdate['id_product']) ? $productUpdate['id_product'] : $productUpdate['product_id'];
                 $productAttributeId = (int) isset($productUpdate['id_product_attribute']) ? $productUpdate['id_product_attribute'] : $productUpdate['product_attribute_id'];
-                
+
                 if (isset($customizedDatas[$productId][$productAttributeId])) {
                     $productUpdate['tax_rate'] = Tax::getProductTaxRate(
                         $productId,
@@ -146,11 +160,11 @@ class PostFinanceCheckoutPaymentModuleFrontController extends PostFinanceCheckou
             }
             Product::addCustomizationPrice($summary['products'], $customizedDatas);
         }
-        
+
         $cart_product_context = Context::getContext()->cloneContext();
         foreach ($summary['products'] as $key => &$product) {
             $product['quantity'] = $product['cart_quantity']; // for compatibility with 1.2 themes
-            
+
             if ($cart_product_context->shop->id != $product['id_shop']) {
                 $cart_product_context->shop = new Shop((int) $product['id_shop']);
             }
@@ -173,22 +187,20 @@ class PostFinanceCheckoutPaymentModuleFrontController extends PostFinanceCheckou
                 true,
                 $cart_product_context
             );
-            
+
             if (Product::getTaxCalculationMethod()) {
                 $product['is_discounted'] = Tools::ps_round(
                     $product['price_without_specific_price'],
                     _PS_PRICE_COMPUTE_PRECISION_
-                ) !=
-                     Tools::ps_round($product['price'], _PS_PRICE_COMPUTE_PRECISION_);
+                ) != Tools::ps_round($product['price'], _PS_PRICE_COMPUTE_PRECISION_);
             } else {
                 $product['is_discounted'] = Tools::ps_round(
                     $product['price_without_specific_price'],
                     _PS_PRICE_COMPUTE_PRECISION_
-                ) !=
-                     Tools::ps_round($product['price_wt'], _PS_PRICE_COMPUTE_PRECISION_);
+                ) != Tools::ps_round($product['price_wt'], _PS_PRICE_COMPUTE_PRECISION_);
             }
         }
-        
+
         // Get available cart rules and unset the cart rules already in the cart
         $available_cart_rules = CartRule::getCustomerCartRules(
             $this->context->language->id,
@@ -209,7 +221,7 @@ class PostFinanceCheckoutPaymentModuleFrontController extends PostFinanceCheckou
                 }
             }
         }
-        
+
         $this->context->smarty->assign($summary);
         $this->context->smarty->assign(
             array(

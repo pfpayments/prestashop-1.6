@@ -1,15 +1,15 @@
 {*
  * PostFinance Checkout Prestashop
  *
- * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
+ * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout).
  *
  * @author customweb GmbH (http://www.customweb.com/)
  * @copyright 2017 - 2019 customweb GmbH
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache Software License (ASL 2.0)
  *}
-{$name}
+{$name|escape:'html':'UTF-8'}
 {if !empty($description)}
-			<span class="payment-method-description">{$description}</span>
+			<span class="payment-method-description">{postfinancecheckout_clean_html text=$description}</span>
 {/if}
 
 {if !empty($surchargeValues)}

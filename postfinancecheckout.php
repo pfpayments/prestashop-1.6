@@ -2,7 +2,7 @@
 /**
  * PostFinance Checkout Prestashop
  *
- * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
+ * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout).
  *
  * @author customweb GmbH (http://www.customweb.com/)
  * @copyright 2017 - 2019 customweb GmbH
@@ -13,24 +13,17 @@ if (! defined('_PS_VERSION_')) {
     exit();
 }
 
-require_once(__DIR__ . DIRECTORY_SEPARATOR . 'postfinancecheckout_autoloader.php');
-require_once(__DIR__ . DIRECTORY_SEPARATOR . 'postfinancecheckout-sdk' . DIRECTORY_SEPARATOR . 'autoload.php');
-
-class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
+require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'postfinancecheckout_autoloader.php');
+require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'postfinancecheckout-sdk' . DIRECTORY_SEPARATOR .
+    'autoload.php');
+class PostFinanceCheckout extends PaymentModule
 {
-
     const CK_SHOW_CART = 'PFC_SHOW_CART';
 
     const CK_SHOW_TOS = 'PFC_SHOW_TOS';
 
     const CK_REMOVE_TOS = 'PFC_REMOVE_TOS';
 
-    const CK_CRONJOB_TIMESTAMP = 'PFC_CRONJOB_TIMESTAMP';
-
-    const CK_CRONJOB_RUNNING = 'PFC_CRONJOB_RUNNING';
-
-    const CRON_MIN_INTERVAL_SEC = 300;
-    
     /**
      * Class constructor
      */
@@ -41,98 +34,145 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
         $this->author = 'Customweb GmbH';
         $this->bootstrap = true;
         $this->need_instance = 0;
-        $this->version = '1.1.5';
-        $this->description = sprintf(
-            $this->l('This PrestaShop module enables to process payments with %s.'),
+        $this->version = '1.1.6';
+        $this->displayName = 'PostFinance Checkout';
+        $this->description = $this->l('This PrestaShop module enables to process payments with %s.');
+        $this->description = sprintf($this->description, 'PostFinance Checkout');
+        $this->ps_versions_compliancy = array(
+            'min' => '1.6',
+            'max' => '1.6.1.24'
+        );
+        $this->module_key = '';
+        parent::__construct();
+        $this->confirmUninstall = sprintf(
+            $this->l('Are you sure you want to uninstall the %s module?', 'abstractmodule'),
             'PostFinance Checkout'
         );
-        $this->ps_versions_compliancy = array('min' => '1.6', 'max' => '1.6.1.21');
-        parent::__construct();
+        
+        // Remove Fee Item
+        if (isset($this->context->cart) && Validate::isLoadedObject($this->context->cart)) {
+            PostFinanceCheckoutFeehelper::removeFeeSurchargeProductsFromCart($this->context->cart);
+        }
+        if (! empty($this->context->cookie->pfc_error)) {
+            $errors = $this->context->cookie->pfc_error;
+            if (is_string($errors)) {
+                $this->context->controller->errors[] = $errors;
+            } elseif (is_array($errors)) {
+                foreach ($errors as $error) {
+                    $this->context->controller->errors[] = $error;
+                }
+            }
+            unset($_SERVER['HTTP_REFERER']); // To disable the back button in the error message
+            $this->context->cookie->pfc_error = null;
+        }
     }
-
-    protected function installHooks()
+    
+    public function addError($error)
     {
-        return parent::installHooks() &&
-            $this->registerHook('actionFrontControllerSetMedia') &&
-            $this->registerHook('displayHeader') &&
-            $this->registerHook('displayMobileHeader') &&
-            $this->registerHook('displayPaymentEU') &&
-            $this->registerHook('displayTop') &&
-            $this->registerHook('payment') &&
-            $this->registerHook('paymentReturn') &&
+        $this->_errors[] = $error;
+    }
+    
+    public function getContext()
+    {
+        return $this->context;
+    }
+    
+    public function getTable()
+    {
+        return $this->table;
+    }
+    
+    public function getIdentifier()
+    {
+        return $this->identifier;
+    }
+    
+    public function install()
+    {
+        if (! PostFinanceCheckoutBasemodule::checkRequirements($this)) {
+            return false;
+        }
+        if (! parent::install()) {
+            return false;
+        }
+        return PostFinanceCheckoutBasemodule::install($this);
+    }
+    
+    public function uninstall()
+    {
+        return parent::uninstall() && PostFinanceCheckoutBasemodule::uninstall($this);
+    }
+    
+
+    public function installHooks()
+    {
+        return PostFinanceCheckoutBasemodule::installHooks($this) && $this->registerHook('actionFrontControllerSetMedia') &&
+            $this->registerHook('displayHeader') && $this->registerHook('displayMobileHeader') &&
+            $this->registerHook('displayPaymentEU') && $this->registerHook('displayTop') &&
+            $this->registerHook('payment') && $this->registerHook('paymentReturn') &&
             $this->registerHook('postFinanceCheckoutCron');
     }
 
-    protected function getBackendControllers()
+    public function getBackendControllers()
     {
         return array(
             'AdminPostFinanceCheckoutMethodSettings' => array(
                 'parentId' => Tab::getIdFromClassName('AdminParentModules'),
-                'name' => 'PostFinance Checkout '.$this->l('Payment Methods')
+                'name' => 'PostFinance Checkout ' . $this->l('Payment Methods')
             ),
             'AdminPostFinanceCheckoutDocuments' => array(
                 'parentId' => - 1, // No Tab in navigation
-                'name' => 'PostFinance Checkout '.$this->l('Documents')
+                'name' => 'PostFinance Checkout ' . $this->l('Documents')
             ),
             'AdminPostFinanceCheckoutOrder' => array(
                 'parentId' => - 1, // No Tab in navigation
-                'name' => 'PostFinance Checkout '.$this->l('Order Management')
+                'name' => 'PostFinance Checkout ' . $this->l('Order Management')
             ),
             'AdminPostFinanceCheckoutCronJobs' => array(
                 'parentId' => Tab::getIdFromClassName('AdminTools'),
-                'name' => 'PostFinance Checkout '.$this->l('CronJobs')
+                'name' => 'PostFinance Checkout ' . $this->l('CronJobs')
             )
         );
     }
 
-    protected function installConfigurationValues()
+    public function installConfigurationValues()
     {
-        return parent::installConfigurationValues() &&
-             Configuration::updateValue(self::CK_SHOW_CART, true) &&
-             Configuration::updateValue(self::CK_SHOW_TOS, false) &&
-             Configuration::updateValue(self::CK_REMOVE_TOS, false);
+        return Configuration::updateValue(self::CK_SHOW_CART, true) &&
+            Configuration::updateValue(self::CK_SHOW_TOS, false) &&
+            Configuration::updateValue(self::CK_REMOVE_TOS, false) &&
+            PostFinanceCheckoutBasemodule::installConfigurationValues();
     }
 
-    protected function uninstallConfigurationValues()
+    public function uninstallConfigurationValues()
     {
-         return parent::uninstallConfigurationValues() &&
-             Configuration::deleteByName(self::CK_SHOW_CART) &&
-             Configuration::deleteByName(self::CK_SHOW_TOS) &&
-             Configuration::deleteByName(self::CK_REMOVE_TOS);
+        return Configuration::deleteByName(self::CK_SHOW_CART) &&
+            Configuration::deleteByName(self::CK_SHOW_TOS) && Configuration::deleteByName(self::CK_REMOVE_TOS) &&
+            PostFinanceCheckoutBasemodule::uninstallConfigurationValues();
     }
 
     public function getContent()
     {
-        $output = $this->getMailHookActiveWarning();
-        $output .= $this->handleSaveAll();
-        $output .= $this->handleSaveApplication();
+        $output = PostFinanceCheckoutBasemodule::getMailHookActiveWarning($this);
+        $output .= PostFinanceCheckoutBasemodule::handleSaveAll($this);
+        $output .= PostFinanceCheckoutBasemodule::handleSaveApplication($this);
         $output .= $this->handleSaveCheckout();
-        $output .= $this->handleSaveEmail();
-        $output .= $this->handleSaveFeeItem();
-        $output .= $this->handleSaveDownload();
-        $output .= $this->handleSaveSpaceViewId();
-        $output .= $this->handleSaveOrderStatus();
-        $output .= $this->displayHelpButtons();
-        return $output . $this->displayForm();
+        $output .= PostFinanceCheckoutBasemodule::handleSaveEmail($this);
+        $output .= PostFinanceCheckoutBasemodule::handleSaveFeeItem($this);
+        $output .= PostFinanceCheckoutBasemodule::handleSaveDownload($this);
+        $output .= PostFinanceCheckoutBasemodule::handleSaveSpaceViewId($this);
+        $output .= PostFinanceCheckoutBasemodule::handleSaveOrderStatus($this);
+        $output .= PostFinanceCheckoutBasemodule::displayHelpButtons($this);
+        return $output . PostFinanceCheckoutBasemodule::displayForm($this);
     }
-    
-    protected function handleSaveCheckout()
+
+    private function handleSaveCheckout()
     {
         $output = "";
         if (Tools::isSubmit('submit' . $this->name . '_checkout')) {
-            if (!$this->context->shop->isFeatureActive() || $this->context->shop->getContext() == Shop::CONTEXT_SHOP) {
-                Configuration::updateValue(
-                    self::CK_SHOW_CART,
-                    Tools::getValue(self::CK_SHOW_CART)
-                );
-                Configuration::updateValue(
-                    self::CK_SHOW_TOS,
-                    Tools::getValue(self::CK_SHOW_TOS)
-                );
-                Configuration::updateValue(
-                    self::CK_REMOVE_TOS,
-                    Tools::getValue(self::CK_REMOVE_TOS)
-                );
+            if (! $this->context->shop->isFeatureActive() || $this->context->shop->getContext() == Shop::CONTEXT_SHOP) {
+                Configuration::updateValue(self::CK_SHOW_CART, Tools::getValue(self::CK_SHOW_CART));
+                Configuration::updateValue(self::CK_SHOW_TOS, Tools::getValue(self::CK_SHOW_TOS));
+                Configuration::updateValue(self::CK_REMOVE_TOS, Tools::getValue(self::CK_REMOVE_TOS));
                 $output .= $this->displayConfirmation($this->l('Settings updated'));
             } else {
                 $output .= $this->displayError(
@@ -142,44 +182,43 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
         }
         return $output;
     }
-    
-    protected function getConfigurationForms()
+
+    public function getConfigurationForms()
     {
         return array(
             $this->getCheckoutForm(),
-            $this->getEmailForm(),
-            $this->getFeeForm(),
-            $this->getDocumentForm(),
-            $this->getSpaceViewIdForm(),
-            $this->getOrderStatusForm()
+            PostFinanceCheckoutBasemodule::getEmailForm($this),
+            PostFinanceCheckoutBasemodule::getFeeForm($this),
+            PostFinanceCheckoutBasemodule::getDocumentForm($this),
+            PostFinanceCheckoutBasemodule::getSpaceViewIdForm($this),
+            PostFinanceCheckoutBasemodule::getOrderStatusForm($this)
         );
     }
-    
-    protected function getConfigurationValues()
+
+    public function getConfigurationValues()
     {
         return array_merge(
-            $this->getApplicationConfigValues(),
+            PostFinanceCheckoutBasemodule::getApplicationConfigValues($this),
             $this->getCheckoutConfigValues(),
-            $this->getEmailConfigValues(),
-            $this->getFeeItemConfigValues(),
-            $this->getDownloadConfigValues(),
-            $this->getSpaceViewIdConfigValues(),
-            $this->getOrderStatusConfigValues()
+            PostFinanceCheckoutBasemodule::getEmailConfigValues($this),
+            PostFinanceCheckoutBasemodule::getFeeItemConfigValues($this),
+            PostFinanceCheckoutBasemodule::getDownloadConfigValues($this),
+            PostFinanceCheckoutBasemodule::getSpaceViewIdConfigValues($this),
+            PostFinanceCheckoutBasemodule::getOrderStatusConfigValues($this)
         );
     }
-    
-    protected function getConfigurationKeys()
+
+    public function getConfigurationKeys()
     {
-        $base = parent::getConfigurationKeys();
+        $base = PostFinanceCheckoutBasemodule::getConfigurationKeys();
         $base[] = self::CK_SHOW_CART;
         $base[] = self::CK_SHOW_TOS;
         $base[] = self::CK_REMOVE_TOS;
         return $base;
     }
-    
-    protected function getCheckoutForm()
+
+    private function getCheckoutForm()
     {
-        
         $checkoutConfig = array(
             array(
                 'type' => 'switch',
@@ -218,7 +257,9 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
                         'label' => $this->l('Hide')
                     )
                 ),
-                'desc' => $this->l('Should the Terms of Service be shown and checked on the payment details input page.'),
+                'desc' => $this->l(
+                    'Should the Terms of Service be shown and checked on the payment details input page.'
+                ),
                 'lang' => false
             ),
             array(
@@ -238,11 +279,13 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
                         'label' => $this->l('Remove')
                     )
                 ),
-                'desc' => $this->l('Should the default Terms of Service be removed during the checkout. CAUTION: This option will remove the ToS for all payment methods.'),
+                'desc' => $this->l(
+                    'Should the default Terms of Service be removed during the checkout. CAUTION: This option will remove the ToS for all payment methods.'
+                ),
                 'lang' => false
             )
         );
-        
+
         return array(
             'legend' => array(
                 'title' => $this->l('Checkout Settings')
@@ -250,14 +293,14 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
             'input' => $checkoutConfig,
             'buttons' => array(
                 array(
-                    'title' =>$this->l('Save All'),
+                    'title' => $this->l('Save All'),
                     'class' => 'pull-right',
                     'type' => 'input',
                     'icon' => 'process-icon-save',
                     'name' => 'submit' . $this->name . '_all'
                 ),
                 array(
-                    'title' =>$this->l('Save'),
+                    'title' => $this->l('Save'),
                     'class' => 'pull-right',
                     'type' => 'input',
                     'icon' => 'process-icon-save',
@@ -266,52 +309,23 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
             )
         );
     }
-    
-    protected function getCheckoutConfigValues()
+
+    private function getCheckoutConfigValues()
     {
         $values = array();
-        if (!$this->context->shop->isFeatureActive() || $this->context->shop->getContext() == Shop::CONTEXT_SHOP) {
-                $values[self::CK_SHOW_CART] = (bool) Configuration::get(
-                    self::CK_SHOW_CART
-                );
-                $values[self::CK_SHOW_TOS] = (bool) Configuration::get(
-                    self::CK_SHOW_TOS
-                );
-                $values[self::CK_REMOVE_TOS] = (bool) Configuration::get(
-                    self::CK_REMOVE_TOS
-                );
+        if (! $this->context->shop->isFeatureActive() || $this->context->shop->getContext() == Shop::CONTEXT_SHOP) {
+            $values[self::CK_SHOW_CART] = (bool) Configuration::get(self::CK_SHOW_CART);
+            $values[self::CK_SHOW_TOS] = (bool) Configuration::get(self::CK_SHOW_TOS);
+            $values[self::CK_REMOVE_TOS] = (bool) Configuration::get(self::CK_REMOVE_TOS);
         }
         return $values;
     }
 
     public function hookPostFinanceCheckoutCron($params)
     {
-        $tasks = array();
-        $tasks[] = 'PostFinanceCheckout_Cron::cleanUpCronDB';
-        $voidService = PostFinanceCheckout_Service_TransactionVoid::instance();
-        if ($voidService->hasPendingVoids()) {
-            $tasks[] = array(
-                $voidService,
-                "updateVoids"
-            );
-        }
-        $completionService = PostFinanceCheckout_Service_TransactionCompletion::instance();
-        if ($completionService->hasPendingCompletions()) {
-            $tasks[] = array(
-                $completionService,
-                "updateCompletions"
-            );
-        }
-        $refundService = PostFinanceCheckout_Service_Refund::instance();
-        if ($refundService->hasPendingRefunds()) {
-            $tasks[] = array(
-                $refundService,
-                "updateRefunds"
-            );
-        }
-        return $tasks;
+        return PostFinanceCheckoutBasemodule::hookPostFinanceCheckoutCron($params);
     }
-    
+
     public function hookDisplayHeader($params)
     {
         if ($this->context->controller instanceof ParentOrderControllerCore) {
@@ -328,7 +342,7 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
 
     public function hookDisplayTop($params)
     {
-        return $this->getCronJobItem();
+        return  PostFinanceCheckoutBasemodule::hookDisplayTop($this, $params);
     }
 
     /**
@@ -347,35 +361,26 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
         }
         $cart = $params['cart'];
         try {
-            $possiblePaymentMethods = PostFinanceCheckout_Service_Transaction::instance()->getPossiblePaymentMethods(
+            $possiblePaymentMethods = PostFinanceCheckoutServiceTransaction::instance()->getPossiblePaymentMethods(
                 $cart
             );
-        } catch(PostFinanceCheckout_Exception_InvalidTransactionAmount $e) {
-            PrestaShopLogger::addLog(
-                $e->getMessage()." CartId: ".$cart->id,
-                2,
-                null,
-                'PostFinanceCheckout'
-                );
+        } catch (PostFinanceCheckoutExceptionInvalidtransactionamount $e) {
+            PrestaShopLogger::addLog($e->getMessage() . " CartId: " . $cart->id, 2, null, 'PostFinanceCheckout');
             return array(
                 array(
-                    'cta_text' => $this->display(__DIR__, 'hook/amount_error_eu.tpl'),
+                    'cta_text' => $this->display(dirname(__FILE__), 'hook/amount_error_eu.tpl'),
                     'form' => ""
-            ));
+                )
+            );
         } catch (Exception $e) {
-            PrestaShopLogger::addLog(
-                $e->getMessage()." CartId: ".$cart->id,
-                1,
-                null,
-                'PostFinanceCheckout'
-                );
+            PrestaShopLogger::addLog($e->getMessage() . " CartId: " . $cart->id, 1, null, 'PostFinanceCheckout');
             return;
         }
         $shopId = $cart->id_shop;
         $language = Context::getContext()->language->language_code;
         $methods = array();
         foreach ($possiblePaymentMethods as $possible) {
-            $methodConfiguration = PostFinanceCheckout_Model_MethodConfiguration::loadByConfigurationAndShop(
+            $methodConfiguration = PostFinanceCheckoutModelMethodconfiguration::loadByConfigurationAndShop(
                 $possible->getSpaceId(),
                 $possible->getId(),
                 $shopId
@@ -386,19 +391,24 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
             $methods[] = $methodConfiguration;
         }
         $result = array();
-        foreach (PostFinanceCheckout_Helper::sortMethodConfiguration($methods) as $methodConfiguration) {
-            $parameters = $this->getParametersFromMethodConfiguration(
-                $methodConfiguration,
-                $cart,
-                $shopId,
-                $language
-            );
+        
+        $this->context->smarty->registerPlugin(
+            'function',
+            'postfinancecheckout_clean_html',
+            array(
+                'PostFinanceCheckoutSmartyfunctions',
+                'cleanHtml'
+            )
+        );
+        
+        foreach (PostFinanceCheckoutHelper::sortMethodConfiguration($methods) as $methodConfiguration) {
+            $parameters = PostFinanceCheckoutBasemodule::getParametersFromMethodConfiguration($this, $methodConfiguration, $cart, $shopId, $language);
             $this->smarty->assign($parameters);
-            
+
             $result[] = array(
-                'cta_text' => $this->display(__DIR__, 'hook/payment_eu_text.tpl'),
+                'cta_text' => $this->display(dirname(__FILE__), 'hook/payment_eu_text.tpl'),
                 'logo' => $parameters['image'],
-                'form' => $this->display(__DIR__, 'hook/payment_eu_form.tpl')
+                'form' => $this->display(dirname(__FILE__), 'hook/payment_eu_form.tpl')
             );
         }
         return $result;
@@ -417,14 +427,10 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
             array(
                 'reference' => $order->reference,
                 'params' => $params,
-                'total' => Tools::displayPrice(
-                    $params['total_to_pay'],
-                    $params['currencyObj'],
-                    false
-                )
+                'total' => Tools::displayPrice($params['total_to_pay'], $params['currencyObj'], false)
             )
         );
-        return $this->display(__DIR__, 'hook/payment_return.tpl');
+        return $this->display(dirname(__FILE__), 'hook/payment_return.tpl');
     }
 
     public function hookPayment($params)
@@ -437,31 +443,21 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
         }
         $cart = $params['cart'];
         try {
-            $possiblePaymentMethods = PostFinanceCheckout_Service_Transaction::instance()->getPossiblePaymentMethods(
+            $possiblePaymentMethods = PostFinanceCheckoutServiceTransaction::instance()->getPossiblePaymentMethods(
                 $cart
             );
-        } catch(PostFinanceCheckout_Exception_InvalidTransactionAmount $e) {
-            PrestaShopLogger::addLog(
-                $e->getMessage()." CartId: ".$cart->id,
-                2,
-                null,
-                'PostFinanceCheckout'
-                );
-            return $this->display(__DIR__, 'hook/amount_error.tpl');        
+        } catch (PostFinanceCheckoutExceptionInvalidtransactionamount $e) {
+            PrestaShopLogger::addLog($e->getMessage() . " CartId: " . $cart->id, 2, null, 'PostFinanceCheckout');
+            return $this->display(dirname(__FILE__), 'hook/amount_error.tpl');
         } catch (Exception $e) {
-            PrestaShopLogger::addLog(
-                $e->getMessage()." CartId: ".$cart->id,
-                1,
-                null,
-                'PostFinanceCheckout'
-                );
+            PrestaShopLogger::addLog($e->getMessage() . " CartId: " . $cart->id, 1, null, 'PostFinanceCheckout');
             return;
         }
         $shopId = $cart->id_shop;
         $language = Context::getContext()->language->language_code;
         $methods = array();
         foreach ($possiblePaymentMethods as $possible) {
-            $methodConfiguration = PostFinanceCheckout_Model_MethodConfiguration::loadByConfigurationAndShop(
+            $methodConfiguration = PostFinanceCheckoutModelMethodconfiguration::loadByConfigurationAndShop(
                 $possible->getSpaceId(),
                 $possible->getId(),
                 $shopId
@@ -472,15 +468,18 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
             $methods[] = $methodConfiguration;
         }
         $result = "";
-        foreach (PostFinanceCheckout_Helper::sortMethodConfiguration($methods) as $methodConfiguration) {
-            $templateVars = $this->getParametersFromMethodConfiguration(
-                $methodConfiguration,
-                $cart,
-                $shopId,
-                $language
-            );
+        $this->context->smarty->registerPlugin(
+            'function',
+            'postfinancecheckout_clean_html',
+            array(
+                'PostFinanceCheckoutSmartyfunctions',
+                'cleanHtml'
+            )
+        );
+        foreach (PostFinanceCheckoutHelper::sortMethodConfiguration($methods) as $methodConfiguration) {
+            $templateVars = PostFinanceCheckoutBasemodule::getParametersFromMethodConfiguration($this, $methodConfiguration, $cart, $shopId, $language);
             $this->smarty->assign($templateVars);
-            $result .= $this->display(__DIR__, 'hook/payment.tpl');
+            $result .= $this->display(dirname(__FILE__), 'hook/payment.tpl');
         }
         return $result;
     }
@@ -489,43 +488,24 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
     {
         $uniqueId = $this->context->cookie->pfc_device_id;
         if ($uniqueId == false) {
-            $uniqueId = PostFinanceCheckout_Helper::generateUUID();
+            $uniqueId = PostFinanceCheckoutHelper::generateUUID();
             $this->context->cookie->pfc_device_id = $uniqueId;
         }
-        $scriptUrl = PostFinanceCheckout_Helper::getBaseGatewayUrl() . '/s/' .
-             Configuration::get(self::CK_SPACE_ID) . '/payment/device.js?sessionIdentifier=' .
-             $uniqueId;
+        $scriptUrl = PostFinanceCheckoutHelper::getBaseGatewayUrl() . '/s/' . Configuration::get(PostFinanceCheckoutBasemodule::CK_SPACE_ID) .
+            '/payment/device.js?sessionIdentifier=' . $uniqueId;
         return '<script src="' . $scriptUrl . '" async="async"></script>';
     }
 
-    private function getCronJobItem()
-    {
-        PostFinanceCheckout_Cron::cleanUpHangingCrons();
-        PostFinanceCheckout_Cron::insertNewPendingCron();
-        
-        $currentToken = PostFinanceCheckout_Cron::getCurrentSecurityTokenForPendingCron();
-        if ($currentToken) {
-            $url = $this->context->link->getModuleLink(
-                'postfinancecheckout',
-                'cron',
-                array(
-                    'security_token' => $currentToken
-                ),
-                true
-            );
-            return '<img src="' . $url . '" style="display:none" />';
-        }
-    }
-
+    
     public function hookActionFrontControllerSetMedia($arr)
     {
         if ($this->context->controller instanceof ParentOrderControllerCore) {
             $this->context->controller->addCSS(
                 __PS_BASE_URI__ . 'modules/' . $this->name . '/views/css/frontend/checkout.css'
-            );            
+            );
             $this->context->controller->addJS(
                 __PS_BASE_URI__ . 'modules/' . $this->name . '/views/js/frontend/selection.js'
-                );
+            );
             $cart = $this->context->cart;
             if (Configuration::get(self::CK_REMOVE_TOS, null, null, $cart->id_shop)) {
                 $this->context->cookie->checkedTOS = 1;
@@ -533,7 +513,6 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
                     __PS_BASE_URI__ . 'modules/' . $this->name . '/views/js/frontend/tos-handling.js'
                 );
             }
-            
         }
     }
 
@@ -545,18 +524,109 @@ class PostFinanceCheckout extends PostFinanceCheckout_AbstractModule
      */
     public function hookDisplayAdminAfterHeader()
     {
-        $result = parent::hookDisplayAdminAfterHeader();
-        $result .= $this->getCronJobItem();
+        $result = PostFinanceCheckoutBasemodule::hookDisplayAdminAfterHeader($this);
+        $result .= PostFinanceCheckoutBasemodule::getCronJobItem($this);
         return $result;
     }
-    
-    protected function hasBackendControllerDeleteAccess(AdminController $backendController)
+
+    public function hasBackendControllerDeleteAccess(AdminController $backendController)
     {
         return $backendController->tabAccess['delete'] === '1';
     }
-    
-    protected function hasBackendControllerEditAccess(AdminController $backendController)
+
+    public function hasBackendControllerEditAccess(AdminController $backendController)
     {
         return $backendController->tabAccess['edit'] === '1';
+    }
+    
+       
+    public function hookPostFinanceCheckoutSettingsChanged($params)
+    {
+        return PostFinanceCheckoutBasemodule::hookPostFinanceCheckoutSettingsChanged($this, $params);
+    }
+    
+    public function hookActionMailSend($data)
+    {
+        return PostFinanceCheckoutBasemodule::hookActionMailSend($this, $data);
+    }
+    
+    public function validateOrder(
+        $id_cart,
+        $id_order_state,
+        $amount_paid,
+        $payment_method = 'Unknown',
+        $message = null,
+        $extra_vars = array(),
+        $currency_special = null,
+        $dont_touch_amount = false,
+        $secure_key = false,
+        Shop $shop = null
+    ) {
+        PostFinanceCheckoutBasemodule::validateOrder($this, $id_cart, $id_order_state, $amount_paid, $payment_method, $message, $extra_vars, $currency_special, $dont_touch_amount, $secure_key, $shop);
+    }
+    
+    public function validateOrderParent(
+        $id_cart,
+        $id_order_state,
+        $amount_paid,
+        $payment_method = 'Unknown',
+        $message = null,
+        $extra_vars = array(),
+        $currency_special = null,
+        $dont_touch_amount = false,
+        $secure_key = false,
+        Shop $shop = null
+    ) {
+        parent::validateOrder($id_cart, $id_order_state, $amount_paid, $payment_method, $message, $extra_vars, $currency_special, $dont_touch_amount, $secure_key, $shop);
+    }
+    
+    public function hookDisplayOrderDetail($params)
+    {
+        return PostFinanceCheckoutBasemodule::hookDisplayOrderDetail($this, $params);
+    }
+    
+    public function hookActionAdminControllerSetMedia($arr)
+    {
+        PostFinanceCheckoutBasemodule::hookActionAdminControllerSetMedia($this, $arr);
+    }
+    
+    public function hookDisplayBackOfficeHeader($params)
+    {
+        PostFinanceCheckoutBasemodule::hookDisplayBackOfficeHeader($this, $params);
+    }
+    
+    public function hookDisplayAdminOrderLeft($params)
+    {
+        return PostFinanceCheckoutBasemodule::hookDisplayAdminOrderLeft($this, $params);
+    }
+    
+    public function hookDisplayAdminOrderTabOrder($params)
+    {
+        return PostFinanceCheckoutBasemodule::hookDisplayAdminOrderTabOrder($this, $params);
+    }
+    
+    public function hookDisplayAdminOrderContentOrder($params)
+    {
+        return PostFinanceCheckoutBasemodule::hookDisplayAdminOrderContentOrder($this, $params);
+    }
+    
+    public function hookDisplayAdminOrder($params)
+    {
+        return PostFinanceCheckoutBasemodule::hookDisplayAdminOrder($this, $params);
+    }
+    
+    public function hookActionAdminOrdersControllerBefore($params)
+    {
+        return PostFinanceCheckoutBasemodule::hookActionAdminOrdersControllerBefore($this, $params);
+    }
+    
+    public function hookActionObjectOrderPaymentAddBefore($params)
+    {
+        PostFinanceCheckoutBasemodule::hookActionObjectOrderPaymentAddBefore($this, $params);
+    }
+    
+    public function hookActionOrderEdited($params)
+    {
+        PostFinanceCheckoutBasemodule::hookActionOrderEdited($this, $params);
     }
 }

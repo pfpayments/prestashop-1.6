@@ -2,7 +2,7 @@
 /**
  * PostFinance Checkout Prestashop
  *
- * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch).
+ * This Prestashop module enables to process payments with PostFinance Checkout (https://www.postfinance.ch/checkout).
  *
  * @author customweb GmbH (http://www.customweb.com/)
  * @copyright 2017 - 2019 customweb GmbH
@@ -11,7 +11,6 @@
 
 class AdminPostFinanceCheckoutCronJobsController extends ModuleAdminController
 {
-    
     public function __construct()
     {
         parent::__construct();
@@ -19,7 +18,7 @@ class AdminPostFinanceCheckoutCronJobsController extends ModuleAdminController
         $this->tpl_folder = 'cronjob/';
         $this->bootstrap = true;
     }
-    
+
     public function initContent()
     {
         $this->handleList();
@@ -29,6 +28,6 @@ class AdminPostFinanceCheckoutCronJobsController extends ModuleAdminController
     private function handleList()
     {
         $this->display = 'list';
-        $this->context->smarty->assign('jobs', PostFinanceCheckout_Cron::getAllCronJobs());
+        $this->context->smarty->assign('jobs', PostFinanceCheckoutCron::getAllCronJobs());
     }
 }
