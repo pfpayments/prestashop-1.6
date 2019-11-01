@@ -71,7 +71,7 @@ jQuery(function ($) {
     
     
         handle_iframe_height : function (height) {
-            var item = $('#postfinancecheckout-payment-container');
+            var item = $('#postfinancecheckout-submit-top');
             if (height == 0) {
                 item.addClass('invisible');
             } else {
@@ -180,7 +180,6 @@ jQuery(function ($) {
             $('html, body').animate({
                 scrollTop : ($('#postfinancecheckout-error-messages').offset().top - 20)
             }, 1000);
-    
         },
 
         format_error_messages : function (messages) {

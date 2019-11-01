@@ -59,11 +59,11 @@
 	<div id="postfinancecheckout-error-messages"></div>
 	
 	
-	<div id="postfinancecheckout-payment-container" class="invisible">
+	<div id="postfinancecheckout-payment-container">
 	<h3 class="page-subheading" id="postfinancecheckout-method-title">
         <span><span style="font-size:smaller">{l s='Payment Method:' mod='postfinancecheckout'}</span> {$name|escape:'html':'UTF-8'}</span>
         
-        <button class="button btn btn-default button-medium postfinancecheckout-submit right" id="postfinancecheckout-submit-top" disabled>
+        <button class="button btn btn-default button-medium postfinancecheckout-submit right invisible" id="postfinancecheckout-submit-top" disabled >
             <span>{l s='I confirm my order' mod='postfinancecheckout'}<i class="icon-chevron-right right"></i></span>
         </button>
     </h3>
