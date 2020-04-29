@@ -74,7 +74,7 @@ $_MODULE['<{postfinancecheckout}prestashop>order_59d444e311f27d372f3d63e645b542c
 $_MODULE['<{postfinancecheckout}prestashop>payment_60a55be5f06d13093412454225789218'] = 'Es gab ein technisches Problem, bitte versuchen Sie es erneut.';
 $_MODULE['<{postfinancecheckout}prestashop>payment_11e9c0a8b009804f5ef7bd6d92d3abdc'] = 'Die Zahlungsart ist nicht mehr verfügbar, bitte versuchen Sie es mit einer anderen.';
 $_MODULE['<{postfinancecheckout}prestashop>basemodule_b70bf5fa76522765603bce3c0a791cc9'] = 'Das Modul \"Mail Hook\" ist nicht aktiv.';
-$_MODULE['<{postfinancecheckout}prestashop>basemodule_0cdc43452bb4b61800c2502afda340cc'] = 'Dieses Module ist für die Abwicklung der Shopemails empfohlen. Andernfalls können Emails zu einem unpassenden Zaitpunkt versendet werden.';
+$_MODULE['<{postfinancecheckout}prestashop>basemodule_0cdc43452bb4b61800c2502afda340cc'] = 'Dieses Module ist für die Abwicklung der Shopemails empfohlen. Andernfalls können Emails zu einem unpassenden Zeitpunkt versendet werden.';
 $_MODULE['<{postfinancecheckout}prestashop>basemodule_7427f994f791989d1711d6b0d6687a8a'] = 'Sie können das Modul %shier%s herunterladen.';
 $_MODULE['<{postfinancecheckout}prestashop>basemodule_c888438d14855d7d96a2724ee9c306bd'] = 'Einstellungen wurden aktualisiert.';
 $_MODULE['<{postfinancecheckout}prestashop>basemodule_9df2740730cc023f16c93ec1075de0f8'] = 'Sie können die Konfiguration für Shop-Gruppen nicht speichern.';
