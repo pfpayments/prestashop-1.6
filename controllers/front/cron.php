@@ -91,7 +91,8 @@ class PostFinanceCheckoutCronModuleFrontController extends ModuleFrontController
 
         // We reduce max running time, so th cron has time to clean up.
         $maxTime = $time->format("U");
-        $maxTime += PostFinanceCheckoutCron::MAX_RUN_TIME_MINUTES * 60 - 60;
+        $maxExecutionTime = PostFinanceCheckoutHelper::getMaxExecutionTime();
+        $maxTime += $maxExecutionTime == 0 ? PostFinanceCheckoutCron::MAX_RUN_TIME_MINUTES * 60 - 60 : $maxExecutionTime;
 
         $tasks = Hook::exec("postFinanceCheckoutCron", array(), null, true, false);
         $error = array();
