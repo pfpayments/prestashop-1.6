@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/pfpayments/prestashop-1.6.svg?branch=master)](https://travis-ci.org/pfpayments/prestashop-1.6)
 
+
+
 # PrestaShop 1.6 PostFinance Checkout Integration
 This repository contains the PrestaShop PostFinance Checkout payment module that enables the shop to process payments with [PostFinance Checkout](https://www.postfinance.ch/checkout).
 
@@ -13,7 +15,7 @@ This repository contains the PrestaShop PostFinance Checkout payment module that
 
 ## Documentation
 
-* [English](https://plugin-documentation.postfinance-checkout.ch/pfpayments/prestashop-1.6/1.2.3/docs/en/documentation.html)
+* [English](https://plugin-documentation.postfinance-checkout.ch/pfpayments/prestashop-1.6/1.2.4/docs/en/documentation.html)
 
 ## Support
 
@@ -21,7 +23,7 @@ Support queries can be issued on the [PostFinance Checkout support site](https:/
 
 ## License
 
-Please see the [license file](https://github.com/pfpayments/prestashop-1.6/blob/1.2.3/LICENSE) for more information.
+Please see the [license file](https://github.com/pfpayments/prestashop-1.6/blob/1.2.4/LICENSE) for more information.
 
 ## Other PrestaShop Versions
 

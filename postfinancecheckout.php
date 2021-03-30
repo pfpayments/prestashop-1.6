@@ -34,7 +34,7 @@ class PostFinanceCheckout extends PaymentModule
         $this->author = 'Customweb GmbH';
         $this->bootstrap = true;
         $this->need_instance = 0;
-        $this->version = '1.2.3';
+        $this->version = '1.2.4';
         $this->displayName = 'PostFinance Checkout';
         $this->description = $this->l('This PrestaShop module enables to process payments with %s.');
         $this->description = sprintf($this->description, 'PostFinance Checkout');
@@ -594,17 +594,17 @@ class PostFinanceCheckout extends PaymentModule
     {
         PostFinanceCheckoutBasemodule::hookDisplayBackOfficeHeader($this, $params);
     }
-    
+
     public function hookDisplayAdminOrderLeft($params)
     {
         return PostFinanceCheckoutBasemodule::hookDisplayAdminOrderLeft($this, $params);
     }
-    
+
     public function hookDisplayAdminOrderTabOrder($params)
     {
         return PostFinanceCheckoutBasemodule::hookDisplayAdminOrderTabOrder($this, $params);
     }
-    
+
     public function hookDisplayAdminOrderContentOrder($params)
     {
         return PostFinanceCheckoutBasemodule::hookDisplayAdminOrderContentOrder($this, $params);
