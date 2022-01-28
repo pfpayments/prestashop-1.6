@@ -46,19 +46,22 @@ class PostFinanceCheckoutServiceManualtask extends PostFinanceCheckoutServiceAbs
             PostFinanceCheckoutHelper::getApiClient()
         );
         foreach (Shop::getShops(true, null, true) as $shopId) {
-            $spaceId = Configuration::get(PostFinanceCheckoutBasemodule::CK_SPACE_ID, null, null, $shopId);
-            if ($spaceId && ! in_array($spaceId, $spaceIds)) {
-                $shopNumberOfManualTasks = $manualTaskService->count(
-                    $spaceId,
-                    $this->createEntityFilter('state', \PostFinanceCheckout\Sdk\Model\ManualTaskState::OPEN)
-                );
-                Configuration::updateValue(self::CONFIG_KEY, $shopNumberOfManualTasks, false, null, $shopId);
-                if ($shopNumberOfManualTasks > 0) {
-                    $numberOfManualTasks[$shopId] = $shopNumberOfManualTasks;
+            $shopGroupId = Shop::getGroupFromShop($shopId);
+            $spaceId = Configuration::get(PostFinanceCheckoutBasemodule::CK_SPACE_ID, null, $shopGroupId, $shopId);
+            if ($spaceId) {
+                if (!in_array($spaceId, $spaceIds)) {
+                    $shopNumberOfManualTasks = $manualTaskService->count(
+                        $spaceId,
+                        $this->createEntityFilter('state', \PostFinanceCheckout\Sdk\Model\ManualTaskState::OPEN)
+                    );
+                    Configuration::updateValue(self::CONFIG_KEY, $shopNumberOfManualTasks, false, $shopGroupId, $shopId);
+                    if ($shopNumberOfManualTasks > 0) {
+                        $numberOfManualTasks[$shopId] = $shopNumberOfManualTasks;
+                    }
+                    $spaceIds[] = $spaceId;
                 }
-                $spaceIds[] = $spaceId;
             } else {
-                Configuration::updateValue(self::CONFIG_KEY, 0, false, null, $shopId);
+                Configuration::updateValue(self::CONFIG_KEY, 0, false, $shopGroupId, $shopId);
             }
         }
         return $numberOfManualTasks;
