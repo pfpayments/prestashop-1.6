@@ -47,16 +47,18 @@ class PostFinanceCheckoutServiceManualtask extends PostFinanceCheckoutServiceAbs
         );
         foreach (Shop::getShops(true, null, true) as $shopId) {
             $spaceId = Configuration::get(PostFinanceCheckoutBasemodule::CK_SPACE_ID, null, null, $shopId);
-            if ($spaceId && ! in_array($spaceId, $spaceIds)) {
-                $shopNumberOfManualTasks = $manualTaskService->count(
-                    $spaceId,
-                    $this->createEntityFilter('state', \PostFinanceCheckout\Sdk\Model\ManualTaskState::OPEN)
-                );
-                Configuration::updateValue(self::CONFIG_KEY, $shopNumberOfManualTasks, false, null, $shopId);
-                if ($shopNumberOfManualTasks > 0) {
-                    $numberOfManualTasks[$shopId] = $shopNumberOfManualTasks;
+            if ($spaceId) {
+                if (!in_array($spaceId, $spaceIds)) {
+                    $shopNumberOfManualTasks = $manualTaskService->count(
+                        $spaceId,
+                        $this->createEntityFilter('state', \PostFinanceCheckout\Sdk\Model\ManualTaskState::OPEN)
+                    );
+                    Configuration::updateValue(self::CONFIG_KEY, $shopNumberOfManualTasks, false, null, $shopId);
+                    if ($shopNumberOfManualTasks > 0) {
+                        $numberOfManualTasks[$shopId] = $shopNumberOfManualTasks;
+                    }
+                    $spaceIds[] = $spaceId;
                 }
-                $spaceIds[] = $spaceId;
             } else {
                 Configuration::updateValue(self::CONFIG_KEY, 0, false, null, $shopId);
             }
