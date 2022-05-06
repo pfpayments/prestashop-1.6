@@ -15,15 +15,15 @@ This repository contains the PrestaShop PostFinance Checkout payment module that
 
 ## Documentation
 
-* [English](https://plugin-documentation.postfinance-checkout.ch/pfpayments/prestashop-1.6/1.2.21/docs/en/documentation.html)
+* [English](https://plugin-documentation.postfinance-checkout.ch/pfpayments/prestashop-1.6/1.2.22/docs/en/documentation.html)
 
 ## Support
 
-Support queries can be issued on the [PostFinance Checkout support site](https://www.postfinance.ch/en/business/support/written-contact/contact-form.html).
+Support queries can be issued on the [PostFinance Checkout support site](https://www.postfinance.ch/en/business/support.html).
 
 ## License
 
-Please see the [license file](https://github.com/pfpayments/prestashop-1.6/blob/1.2.21/LICENSE) for more information.
+Please see the [license file](https://github.com/pfpayments/prestashop-1.6/blob/1.2.22/LICENSE) for more information.
 
 ## Other PrestaShop Versions
 
