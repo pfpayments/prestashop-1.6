@@ -14,4 +14,8 @@
  */
 class PostFinanceCheckoutExceptionIncompleteconfig extends Exception
 {
+    public function __construct()
+    {
+        parent::__construct("Postfinance Checkout's configuration is incomplete.");
+    }
 }
