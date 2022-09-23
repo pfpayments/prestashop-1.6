@@ -271,15 +271,7 @@ class PostFinanceCheckoutServiceWebhook extends PostFinanceCheckoutServiceAbstra
     {
         $link = Context::getContext()->link;
 
-        $shopIds = Shop::getShops(true, null, true);
-        asort($shopIds);
-        $shopId = reset($shopIds);
-
-        $languageIds = Language::getLanguages(true, $shopId, true);
-        asort($languageIds);
-        $languageId = reset($languageIds);
-
-        $url = $link->getModuleLink('postfinancecheckout', 'webhook', array(), true, $languageId, $shopId);
+        $url = $link->getModuleLink('postfinancecheckout', 'webhook', array(), true);
         // We have to parse the link, because of issue http://forge.prestashop.com/browse/BOOM-5799
         $urlQuery = parse_url($url, PHP_URL_QUERY);
         if (stripos($urlQuery, 'controller=module') !== false && stripos($urlQuery, 'controller=webhook') !== false) {
