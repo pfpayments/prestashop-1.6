@@ -29,15 +29,4 @@ class PostFinanceCheckoutVersionadapter
     {
         return 'views/templates/admin/hook/admin_order.tpl';
     }
-
-    /**
-     * Returns true if the refund is only voucher, not required to be sent to PostFinanceCheckout.
-     *
-     * @param [] $postData
-     * @return boolean
-     */
-    public static function isVoucherOnlyPostFinanceCheckout($postData)
-    {
-        return isset($postData['generateDiscountRefund']) && ! isset($postData['postfinancecheckout_offline']);
-    }
 }

@@ -1019,10 +1019,7 @@ class PostFinanceCheckoutBackendDefaultstrategy implements PostFinanceCheckoutBa
 
     public function isVoucherOnlyPostFinanceCheckout(Order $order, array $postData)
     {
-        if (method_exists('PostFinanceCheckoutVersionadapter', 'isVoucherOnlyPostFinanceCheckout')) {
-            return PostFinanceCheckoutVersionadapter::isVoucherOnlyPostFinanceCheckout($postData);
-        }
-        return FALSE;
+        return PostFinanceCheckoutVersionadapter::isVoucherOnlyPostFinanceCheckout($postData);
     }
 
     public function isCancelRequest(Order $order, array $postData)
